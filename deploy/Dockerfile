@@ -1,13 +1,11 @@
-
-FROM php:8.2-fpm
+# 
+FROM composer:2.8
 
 # Install dependencies
-RUN apt-get update && apt-get install -y \
-    git unzip libicu-dev libzip-dev libpq-dev libonig-dev \
-    && docker-php-ext-install intl pdo pdo_pgsql zip opcache
+
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 
 # Set working directory
 WORKDIR /var/www/html
@@ -16,9 +14,15 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN composer install --no-interaction --optimize-autoloader
- 
 # Permissions
 RUN chown -R www-data:www-data /var/www/html
 
-CMD ["php-fpm"]
+RUN apk add --no-cache bash \
+    && curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.alpine.sh' | bash \
+    && apk add symfony-cli
+
+
+RUN cd ./my_project
+
+
+CMD ["symfony", "serve"]
