@@ -33,7 +33,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: "Install PHP with extensions"
-              uses: shivammathur/setup-php@v2
+              uses: shivammathur/setup-php@v2.30.0
               with:
                   coverage: "none"
                   extensions: "intl, mbstring, pdo_sqlite, zip"

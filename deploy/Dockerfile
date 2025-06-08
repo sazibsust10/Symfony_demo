@@ -14,7 +14,7 @@ WORKDIR /var/www/html
 
 COPY . .
 
-# Permissions
+# Permissions Its taking more time. 
 RUN chown -R www-data:www-data /var/www/html
 
 RUN apk add --no-cache bash \
