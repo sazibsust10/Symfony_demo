@@ -24,5 +24,6 @@ RUN apk add --no-cache bash \
 
 RUN cd ./my_project
 
+EXPOSE 8000
 
 CMD ["symfony", "serve"]

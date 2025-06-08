@@ -14,8 +14,9 @@ spec:
     spec:
       containers:
         - name: symfony
-          image: symfony-demo:latest
-          imagePullPolicy: Never
+          image: ghcr.io/sazibsust10/symfony-demo:1.0.0
+          imagePullPolicy: IfNotPresent
+          command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
           ports:
             - containerPort: 8000
           env:

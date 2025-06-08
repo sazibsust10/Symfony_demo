@@ -1,8 +1,8 @@
 # Makefile for Symfony Docker Image
 
 # Variables
-IMAGE_NAME = symfony-demo
-IMAGE_TAG ?= latest
+IMAGE_NAME = ghcr.io/sazibsust10/symfony-demo
+IMAGE_TAG ?= 1.0.0
 DOCKERFILE ?= deploy/Dockerfile
 CONTEXT ?= .
 
