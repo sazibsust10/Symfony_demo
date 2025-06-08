@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: symfony-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: symfony
@@ -14,12 +14,13 @@ spec:
     spec:
       containers:
         - name: symfony
-          image: your-repo/symfony-demo:latest
+          image: symfony-demo:latest
+          imagePullPolicy: Never
           ports:
-            - containerPort: 9000
+            - containerPort: 8000
           env:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: db-secret
-                  key: database-url
+                  key: DATABASE_URL
