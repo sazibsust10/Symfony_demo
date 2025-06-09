@@ -1,27 +1,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: symfony-app
+  name: symfony-demo
+  labels:
+    app: symfony-demo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: symfony
+      app: symfony-demo
   template:
     metadata:
       labels:
-        app: symfony
+        app: symfony-demo
     spec:
       containers:
-        - name: symfony
+        - name: symfony-demo
           image: ghcr.io/sazibsust10/symfony-demo:1.0.0
-          imagePullPolicy: IfNotPresent
-          command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           env:
-            - name: DATABASE_URL
+            - name: APP_ENV
+              value: "prod"
+            - name: APP_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: db-secret
-                  key: DATABASE_URL
+                  name: symfony-secret
+                  key: APP_SECRET
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+

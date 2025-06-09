@@ -2,8 +2,8 @@
 
 # Variables
 IMAGE_NAME = ghcr.io/sazibsust10/symfony-demo
-IMAGE_TAG ?= 1.0.0
-DOCKERFILE ?= deploy/Dockerfile
+IMAGE_TAG ?= 1.0.1
+DOCKERFILE ?= Dockerfile
 CONTEXT ?= .
 
 # Targets

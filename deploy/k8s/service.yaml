@@ -1,12 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: symfony-service
+  name: symfony-demo
+  labels:
+    app: symfony-demo
 spec:
-  type: ClusterIP 
-  selector:
-    app: symfony
+  type: ClusterIP
   ports:
-    - protocol: TCP
-      port: 80
+    - name: http
+      port: 8000
       targetPort: 8000
+      protocol: TCP
+  selector:
+    app: symfony-demo
