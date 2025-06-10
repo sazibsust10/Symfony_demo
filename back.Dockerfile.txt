@@ -1,0 +1,67 @@
+# # Dockerfile
+# FROM php:8.4-cli
+
+# # Install system dependencies
+# # RUN apt-get update && apt-get install -y \
+# #     git unzip zip curl libxml2-dev libsqlite3-dev libonig-dev libzip-dev \
+# #     && docker-php-ext-install pdo pdo_sqlite dom zip
+
+# RUN apt-get update && apt-get install -y \
+#     libpq-dev unzip git curl libicu-dev libzip-dev \
+#     && docker-php-ext-install pdo pdo_pgsql intl zip opcache
+
+
+# # Install Composer
+# COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# RUN echo "Current directory at build time:" && pwd
+
+# # Create app directory
+# WORKDIR /var/www/html
+
+# # Copy Symfony project files
+# COPY . .
+
+
+# RUN chown -R www-data:www-data /var/www/html
+# # Install PHP dependencies
+# RUN composer install --no-interaction
+
+
+# # Expose the port used by Symfony local server
+# EXPOSE 8000
+
+# # Run Symfony built-in server
+# CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+
+
+# Use PHP 8.4 with FPM
+FROM php:8.4-fpm
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git unzip zip curl libpq-dev libzip-dev libicu-dev libonig-dev \
+    && docker-php-ext-install pdo pdo_pgsql intl zip 
+
+# # Enable OPcache config
+# COPY ./docker/php/conf.d/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+# Install Composer globally
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy application code (only if you're baking code into image — for dev use volumes)
+COPY . .
+
+
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 var
+
+# Optional: pre-install dependencies (useful in production builds)
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# Expose port 9000 for PHP-FPM
+EXPOSE 9000
+
+CMD ["php-fpm"]

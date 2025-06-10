@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: symfony-demo
-          image: ghcr.io/sazibsust10/symfony-demo:1.0.0
+          image: ghcr.io/sazibsust10/symfony-demo:1.0.2
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
