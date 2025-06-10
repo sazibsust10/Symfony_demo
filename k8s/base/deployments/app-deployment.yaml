@@ -14,14 +14,14 @@ spec:
     spec:
       initContainers:
         - name: copy-symfony-code
-          image: ghcr.io/sazibsust10/symfony-demo:2.0.0
+          image: ghcr.io/sazibsust10/symfony-demo:1.0.0
           command: ['sh', '-c', 'cp -a /var/www/html/* /symfony-code/']
           volumeMounts:
             - name: symfony-code
               mountPath: /symfony-code
       containers:
         - name: symfony
-          image: ghcr.io/sazibsust10/symfony-demo:2.0.0
+          image: ghcr.io/sazibsust10/symfony-demo:1.0.0
           ports:
             - containerPort: 9000
           env:

@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: symfony-db-migrate
+  labels:
+    app: symfony
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for MySQL at db:3306..."
+              until nc -z db 3306; do
+                echo "MySQL not ready, waiting 3s..."
+                sleep 3
+              done
+              echo "MySQL is ready!"
+      containers:
+        - name: migrate
+          image: ghcr.io/sazibsust10/symfony-demo:2.0.0  # ← Replace with your actual Symfony image
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Checking for pending migrations..."
+              php bin/console doctrine:migrations:status --no-interaction | grep "New Migrations" | grep -q "Available"
+              if [ $? -eq 0 ]; then
+                echo "Running pending migrations..."
+                php bin/console doctrine:migrations:migrate --no-interaction
+              else
+                echo "No new migrations."
+              fi
+          env:
+            - name: APP_ENV
+              value: prod
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: symfony-db-secret
+                  key: DATABASE_URL
+      restartPolicy: Never

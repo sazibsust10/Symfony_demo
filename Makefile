@@ -10,7 +10,7 @@ CONTEXT ?= .
 
 .PHONY: all build push
 
-all: build
+all: build push
 
 build:
 	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(CONTEXT)

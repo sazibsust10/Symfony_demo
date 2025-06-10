@@ -1,21 +1,18 @@
-# apiVersion: kustomize.config.k8s.io/v1beta1
-# kind: Kustomization
-# namespace: default
-# labels:
-#   - pairs:
-#       app: symfony-demo
-#     includeSelectors: true
-# images:
-#   - name: ghcr.io/sazibsust10/symfony-demo
-#     newTag: 2.0.0
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+images:
+  - name: ghcr.io/sazibsust10/symfony-demo
+    newTag: 1.0.2
 resources:
-  - app-deployment.yaml
-  - web-deployment.yaml
-  - mysql-deployment.yaml
-  - service.yaml
-  - db-service.yaml
-  - web-service.yaml
-  - secret.yaml
-  - configmap.yaml
-  - symfony-pvc.yaml 
+  - deployments/app-deployment.yaml
+  - deployments/web-deployment.yaml
+  - deployments/mysql-deployment.yaml
+  - services/service.yaml
+  - services/db-service.yaml
+  - services/web-service.yaml
+  - secrets/secret.yaml
+  - config/configmap.yaml
+  - storage/symfony-pvc.yaml
+  - jobs/db-migrate.yaml
+  - autoscaling/hpa.yaml
   
