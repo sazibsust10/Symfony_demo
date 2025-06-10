@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: symfony-app
+spec:
+  type: ClusterIP
+  ports:
+    - name: php-fpm
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+  selector:
+    app: symfony-app

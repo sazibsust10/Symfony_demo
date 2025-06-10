@@ -1,0 +1,21 @@
+# apiVersion: kustomize.config.k8s.io/v1beta1
+# kind: Kustomization
+# namespace: default
+# labels:
+#   - pairs:
+#       app: symfony-demo
+#     includeSelectors: true
+# images:
+#   - name: ghcr.io/sazibsust10/symfony-demo
+#     newTag: 2.0.0
+resources:
+  - app-deployment.yaml
+  - web-deployment.yaml
+  - mysql-deployment.yaml
+  - service.yaml
+  - db-service.yaml
+  - web-service.yaml
+  - secret.yaml
+  - configmap.yaml
+  - symfony-pvc.yaml 
+  

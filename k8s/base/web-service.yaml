@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: symfony-web
+spec:
+  selector:
+    app: symfony-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
