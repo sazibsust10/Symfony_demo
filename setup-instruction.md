@@ -92,7 +92,7 @@ cd Symfony_demo
 
 Build the Docker image:
 
-// use the make script
+Use the make script
 ```bash
 docker build -t sazibsust10/symfony-demo:latest .
 docker push sazibsust10/symfony-demo:latest
@@ -102,11 +102,11 @@ docker push sazibsust10/symfony-demo:latest
 
 Apply the manifests:
 
-// for prod
+For `prod`
 ```bash
 kubectl apply -k k8s/overlays/prod/
 ```
-// for dev
+For `dev`
 ```bash
 kubectl apply -k k8s/overlays/dev/
 ```
@@ -124,7 +124,7 @@ Access the application via port-forward or ingress.
 
 ### 1.5 Best Practices & Notes
 
-- Used `readinessProbe` and `livenessProbe`, I have this in my code
+- Used `readinessProbe` and `livenessProbe` symfony app does not define a /health route. we need to create Symfony controller for /health
 - Secrets managed via `Secret` object, right now its in plain text in k8s/base/secrets/secret.yaml. In real life we have to use vault to store secrets or aws secrets manager
 - Suggested: external DB service for production workloads
 
