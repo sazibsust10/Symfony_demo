@@ -27,6 +27,8 @@ This project demonstrates the deployment of the Symfony Demo Application in a Ku
 - `kubectl`
 - `kustomization` 
 
+Later on we will use `helm` for Package versioning, upgrades, rollbacks
+
 ---
 
 ##  Project Structure
