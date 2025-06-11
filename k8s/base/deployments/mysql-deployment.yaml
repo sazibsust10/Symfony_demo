@@ -20,7 +20,7 @@ spec:
             - containerPort: 3306
           envFrom:
             - secretRef:
-                name: symfony-db-secret
+                name: symfony-db-secret # Reference to the secret containing MySQL credentials
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
@@ -28,7 +28,7 @@ spec:
     - metadata:
         name: mysql-data
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: ["ReadWriteOnce"] 
         resources:
           requests:
             storage: 1Gi

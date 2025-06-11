@@ -8,7 +8,7 @@ spec:
   backoffLimit: 3
   template:
     spec:
-      initContainers:
+      initContainers: # This init container waits for the MySQL service to be ready before running the migration
         - name: wait-for-mysql
           image: busybox
           command:
@@ -21,9 +21,9 @@ spec:
                 sleep 3
               done
               echo "MySQL is ready!"
-      containers:
+      containers: # This container runs the migration command
         - name: migrate
-          image: ghcr.io/sazibsust10/symfony-demo:2.0.0  # ← Replace with your actual Symfony image
+          image: ghcr.io/sazibsust10/symfony-demo:2.0.0  
           command:
             - /bin/sh
             - -c

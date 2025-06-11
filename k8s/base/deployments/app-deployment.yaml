@@ -14,14 +14,14 @@ spec:
     spec:
       initContainers:
         - name: copy-symfony-code
-          image: ghcr.io/sazibsust10/symfony-demo:1.0.0
-          command: ['sh', '-c', 'cp -a /var/www/html/* /symfony-code/']
+          image: ghcr.io/sazibsust10/symfony-demo:2.0.0
+          command: ['sh', '-c', 'cp -a /var/www/html/* /symfony-code/'] # Copying code to a shared volume
           volumeMounts:
             - name: symfony-code
               mountPath: /symfony-code
       containers:
         - name: symfony
-          image: ghcr.io/sazibsust10/symfony-demo:1.0.0
+          image: ghcr.io/sazibsust10/symfony-demo:2.0.0
           ports:
             - containerPort: 9000
           env:
@@ -33,6 +33,25 @@ spec:
           volumeMounts:
             - name: symfony-code       # Changed from app-code to symfony-code
               mountPath: /var/www/html
+          # resources: # Uncomment and adjust resource requests and limits as needed
+          #   requests:
+          #     memory: "256Mi" 
+          #     cpu: "250m"
+          #   limits:
+          #     memory: "512Mi"
+          #     cpu: "500m"
+          # livenessProbe: # Uncomment and adjust liveness and readiness probes as needed in production
+          #   httpGet:
+          #     path: /
+          #     port: 9000
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 9000
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 5
       volumes:
         - name: symfony-code          # Changed from app-code to symfony-code
           persistentVolumeClaim:

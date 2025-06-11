@@ -2,17 +2,17 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:
   - name: ghcr.io/sazibsust10/symfony-demo
-    newTag: 1.0.2
+    newTag: 2.0.1
 resources:
+  - deployments/mysql-deployment.yaml
+  - jobs/db-migrate.yaml
   - deployments/app-deployment.yaml
   - deployments/web-deployment.yaml
-  - deployments/mysql-deployment.yaml
   - services/service.yaml
   - services/db-service.yaml
   - services/web-service.yaml
   - secrets/secret.yaml
   - config/configmap.yaml
   - storage/symfony-pvc.yaml
-  - jobs/db-migrate.yaml
   - autoscaling/hpa.yaml
   
