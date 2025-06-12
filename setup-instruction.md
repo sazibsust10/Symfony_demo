@@ -1,235 +1,244 @@
+# Symfony Demo Application Deployment on Kubernetes
 
-# Symfony Demo App on Kubernetes
-
-##  Table of Contents
-1. [Overview](#overview)  
-2. [Prerequisites](#prerequisites)  
-3. [Project Structure](#project-structure)  
-4. [Task 1: Deploy Symfony Demo App in Kubernetes](#task-1-deploy-symfony-demo-app-in-kubernetes)  
-5. [Task 2: Implement Database Migrations](#task-2-implement-database-migrations)  
-6. [Task 3: Scaling Concerns and Implementations](#task-3-scaling-concerns-and-implementations)  
-7. [Testing Instructions](#testing-instructions)   
-8. [Conclusion](#conclusion)  
-9. [Appendix](#appendix)  
-
----
-
-##  Overview
-
-This project demonstrates the deployment of the Symfony Demo Application in a Kubernetes environment. It includes containerization, database migration integration, and scaling considerations with a focus on best practices.
+## Table of Contents
+- [Overview](#overview)  
+- [Prerequisites](#prerequisites)  
+- [Project Structure](#project-structure)  
+- [Task 1: Deploy Symfony Demo App in Kubernetes](#task-1-deploy-symfony-demo-app-in-kubernetes)  
+- [Task 2: Implement Database Migrations](#task-2-implement-database-migrations)  
+- [Task 3: Scaling Concerns and Implementations](#task-3-scaling-concerns-and-implementations)  
+- [Testing Instructions](#testing-instructions)  
+- [Conclusion](#conclusion)  
+- [Appendix](#appendix)  
 
 ---
 
-##  Prerequisites
+## Overview
 
-- Docker
-- Kubernetes cluster (e.g., Minikube, Kind, GKE, etc.)
-- `kubectl`
-- `kustomization` 
-
-Later on we will use `helm` for Package versioning, upgrades, rollbacks
+This project demonstrates the containerization and deployment of the Symfony Demo Application within a Kubernetes environment. It highlights best practices such as zero-downtime database migrations and autoscaling strategies, focusing on reliability, maintainability, and reproducibility.
 
 ---
 
-##  Project Structure
+## Prerequisites
 
-The structure for the added kubernetes deployments files are as below (symfony-demo directories are not documented)
+The deployment assumes the following tools and environment:
+
+- Docker (for containerization)  
+- Kubernetes cluster (e.g., Minikube, Kind, GKE)  
+- `kubectl` CLI  
+- `kustomize` for manifest management  
+- (Optional) `helm` intended for future enhancements such as versioning and rollback  
+
+---
+
+## Project Structure
+
+The Kubernetes manifests and Docker-related files are organized as follows:
 
 ```
 .
 ├── Dockerfile
-├── docker-compose
+├── docker-compose.yaml
 ├── docker/
-│ └── nginx.conf
+│   └── nginx.conf
 ├── k8s/
-│ ├── base/
-│ │ ├── autoscaling/
-│ │ │ └── hpa.yaml
-│ │ ├── config/
-│ │ │ └── configmap.yaml
-│ │ ├── deployments/
-│ │ │ ├── app-deployment.yaml
-│ │ │ ├── mysql-deployment.yaml
-│ │ │ └── web-deployment.yaml
-│ │ ├── jobs/
-│ │ │ └── db-migrate.yaml
-│ │ ├── secrets/
-│ │ │ └── secret.yaml
-│ │ ├── services/
-│ │ │ ├── db-service.yaml
-│ │ │ ├── app-service.yaml
-│ │ │ └── web-service.yaml
-│ │ ├── storage/
-│ │ │ └── symfony-pvc.yaml
-│ │ └── kustomization.yaml
-│ └── overlays/
-│ ├── dev/
-│ │ └── kustomization.yaml
-│ └── prod/
-│ └── kustomization.yaml
+│   ├── base/
+│   │   ├── autoscaling/hpa.yaml
+│   │   ├── config/configmap.yaml
+│   │   ├── deployments/
+│   │   │   ├── app-deployment.yaml
+│   │   │   ├── mysql-deployment.yaml
+│   │   │   └── web-deployment.yaml
+│   │   ├── jobs/db-migrate.yaml
+│   │   ├── secrets/secret.yaml
+│   │   ├── services/
+│   │   │   ├── app-service.yaml
+│   │   │   ├── db-service.yaml
+│   │   │   └── web-service.yaml
+│   │   ├── storage/symfony-pvc.yaml
+│   │   └── kustomization.yaml
+│   └── overlays/
+│       ├── dev/kustomization.yaml
+│       └── prod/kustomization.yaml
 ├── setup-instruction.md
 └── ...
 ```
 
-- `k8s/`: Kubernetes manifests
-- `Dockerfile`: Symfony app containerization
-
 ---
 
-##  Task 1: Deploy Symfony Demo App in Kubernetes
+## Task 1: Deploy Symfony Demo App in Kubernetes
 
-### 1.1 Clone and Prepare the Application
+### Objective
 
-Clone the Symfony Demo app from GitHub:
+To containerize and deploy the Symfony demo application on Kubernetes, ensuring the process is reproducible in a clean namespace.
 
-You can either clone the repo or use the image tag Link here 
-[text](https://github.com/users/sazibsust10/packages/container/package/symfony-demo)
+### Implementation Details
+
+- The Symfony demo app was cloned from the public GitHub repository.
+- A Dockerfile was created to containerize the application, with images pushed to GitHub Container Registry.
+- Kubernetes manifests were structured using Kustomize for environment overlays (dev and prod).
+- The manifests include Deployments, Services, ConfigMaps, Secrets and PersistentVolumeClaims.
+
+- Secrets are currently managed via Kubernetes Secret objects in plaintext for simplicity; production deployments should use secret management solutions such as Vault or cloud provider equivalents.
+- Database is deployed as a MySQL instance within the cluster for demonstration; for production, an external managed database service is recommended.
+- Health checks (`readinessProbe` and `livenessProbe`) can be implemented; a minimal `/health` endpoint should be added in the Symfony app for these to function properly.
+
+### Deployment Steps
 
 ```bash
 git clone git@github.com:sazibsust10/Symfony_demo.git
 cd Symfony_demo
-```
 
-### 1.2 Dockerize the Symfony App
-
-Build the Docker image:
-
-Use the make script
-```bash
 docker build -t ghcr.io/sazibsust10/symfony-demo:2.0.3 .
 docker push ghcr.io/sazibsust10/symfony-demo:2.0.3
-```
-After pushing image to your continer registry, update the kustomization.yaml, app-deployment.yaml and db-migrate.yaml 
-### 1.3 Kubernetes Manifests
 
-Apply the manifests:
-
-For `prod`
-```bash
+# for prodcution
 kubectl apply -k k8s/overlays/prod/
-```
-For `dev`
-```bash
+# or for development
 kubectl apply -k k8s/overlays/dev/
-```
 
-### 1.4 Deployment Instructions
-
-Ensure all services and deployments are running:
-
-```bash
 kubectl get pods
 kubectl get svc
 ```
 
-Access the application via port-forward or ingress.
+---
 
-### 1.5 Best Practices & Notes
+## Task 2: Implement Database Migrations
 
-- Used `readinessProbe` and `livenessProbe` symfony app does not define a /health route. we need to create Symfony controller for /health
-- Secrets managed via `Secret` object, right now its in plain text in k8s/base/secrets/secret.yaml. In real life we have to use vault to store secrets or aws secrets manager
-- Suggested: external DB service for production workloads
+### Objective
+
+Integrate database migration capability into the Kubernetes deployment pipeline to maintain schema consistency without downtime.
+
+### Strategy
+
+- Utilized Doctrine Migrations with additive, non-destructive schema changes.
+- Introduced a Kubernetes Job to run migrations (`db-migrate.yaml`) before the application deployment.
+- Migration job designed to be idempotent and safe to re-run if needed.
+- Emphasized zero-downtime by decoupling migration execution from application rollout.
+- Rollback strategies include testing schema version compatibility and database backups.
+
+### Deployment Workflow
+
+1. Execute the migration Job using:
+
+    ```bash
+    kubectl apply -f k8s/base/jobs/db-migrate.yaml
+    ```
+
+2. Upon success, deploy the updated application manifest.
+
+3. Conduct smoke testing to validate functionality.
 
 ---
 
-##  Task 2: Implement Database Migrations
+## Task 3: Scaling Concerns and Implementations
 
-### 2.1 Migration Strategy
+### Objective
 
-Use Doctrine migrations with zero-downtime practices:
-- Additive schema changes
-- Two-step deployment (migration, then app) - using init container and kustomization config
+Identify scalability challenges and implement solutions at both application and database layers.
 
-<!-- ### 2.2 Kubernetes Integration (Job/Init Container)
+### Identified Scaling Issues
 
-Migration job example:
+### Application Layer
+- Static number of replicas limits responsiveness to traffic surges.
+- Resource bottlenecks (CPU, memory) under high load.
+- No Horizontal/Vertical Pod Autoscaler.
+- Lack of load testing and benchmarking.
 
-```bash
-kubectl apply -f k8s/base/jobs/db-migrate.yaml
-``` -->
-
-### 2.3 Deployment Workflow
-
-Using CI/CD make sure the migrations run before the app deployment or rolls back
-1. Run migration job
-2. On success, deploy the app
-3. Validate app functionality
-
-### 2.4 Zero Downtime Considerations
-
-- Avoid destructive schema changes
-- App should tolerate both old and new schema
-- Rollbacks tested with schema versioning
+### Database Layer
+- Single-point-of-failure database.
+- No read/write separation.
+- Potential for DB connection exhaustion.
+- Stateful services are harder to scale dynamically.
 
 ---
 
-##  Task 3: Scaling Concerns and Implementations
+### Proposed Scaling Strategies
 
-### 3.1 Application Layer Scaling
+### Application Layer
 
-Implemented `HorizontalPodAutoscaler`:
+| Strategy | Description | Benefit |
+|---------|-------------|---------|
+| **Horizontal Pod Autoscaler (HPA)** | Auto-scales pods based on CPU/utilization metrics. | Handles variable traffic efficiently. |
+| Vertical Pod Autoscaler (VPA) | Adjusts resource requests/limits automatically. | Prevents over/under-provisioning. |
+| Load Testing (ab, k6, wrk) | Simulates user traffic to discover bottlenecks. | Sets baselines for auto-scaling. |
+| Pod Disruption Budgets (PDB) | Ensures availability during node or pod disruptions. | Maintains reliability during changes. |
 
+### Database Layer
+
+| Strategy | Description | Benefit |
+|---------|-------------|---------|
+| Read Replicas with Proxy | Offloads read traffic using tools like `ProxySQL` | Reduces pressure on the primary DB. |
+| Clustering (e.g., Patroni, MySQL Group Replication) | Enables horizontal scale and high availability. | Removes single points of failure. |
+| Connection Pooling (pgbouncer) | Manages and reuses DB connections efficiently. | Prevents DB connection exhaustion. |
+| Scalable Storage (PVC expansion) | Use dynamically resizable PersistentVolumes. | Supports growing data workloads. |
+
+- Production recommendation: utilize managed database services with high availability and read replicas to scale read operations.
+---
+
+### Horizontal Pod Autoscaler (HPA)
+
+I chose to implement Horizontal Pod Autoscaler (HPA) because it's a native and efficient way to dynamically scale stateless applications in Kubernetes based on real-time metrics such as CPU and memory usage.
+
+
+
+### Additional Notes
 ```bash
-kubectl apply -f k8s/base/autoscaling/hpa.yaml
+kubectl run load-generator --image=ubuntu --restart=Never -it -- /bin/bash
 ```
 
-### 3.2 Database Layer Considerations
-
-- Single-instance for demo
-- Recommended: managed PostgreSQL with read replicas
-
-### 3.3 Horizontal/Vertical Scaling Setup
-
-Configured CPU/memory limits and requests.
-
-### 3.4 Auto-scaling Examples
-
-Load testing can be done using `kubectl run` and `ab`/`hey`.
+- Load testing tools such as `ab` or `hey` can be employed to simulate traffic.
+- CPU and memory thresholds in HPA can be tuned based on profiling.
 
 ---
 
-##  Testing Instructions
+## Testing Instructions
 
-From a clean namespace:
+To validate deployment in a clean Kubernetes namespace:
 
 ```bash
 kubectl create namespace symfony-demo
 kubectl config set-context --current --namespace=symfony-demo
 
-kubectl apply -k k8s/base/
-```
+kubectl apply -k k8s/overlays/dev
+kubectl apply -k k8s/overlays/prod
 
-Check logs and endpoints to verify successful deployment.
-
----
-
-
-##  Conclusion
-
-This project demonstrates how to:
-- Containerize and deploy Symfony
-- Safely run DB migrations in Kubernetes
-- Scale the app with Kubernetes-native tools
-
----
-
-##  Appendix
-
-### A.1 Useful Commands
-
-```bash
 kubectl get all
-kubectl describe pod <name>
 kubectl logs -f job/run-migrations
 kubectl rollout status deployment symfony
 ```
 
-### A.2 Kubernetes Resources
+---
 
-- [Kubernetes Job](https://kubernetes.io/docs/concepts/workloads/controllers/job/)
-- [Symfony Demo](https://github.com/symfony/demo)
+## Conclusion
 
-### A.3 Links and References
+This deployment project highlights key DevOps competencies:
 
-- Symfony Documentation: https://symfony.com/doc/current/index.html
-- Doctrine Migrations: https://www.doctrine-project.org/projects/doctrine-migrations.html
+- Effective containerization and Kubernetes deployment  
+- Zero-downtime database migrations integrated into CI/CD workflows  
+- Autoscaling configuration to manage load variations  
+- Awareness of production-grade best practices around secrets and database management  
+
+The solution is reproducible and designed with maintainability and scalability in mind.
+
+---
+
+## Appendix
+
+### Useful Kubernetes Commands
+
+```bash
+kubectl get all
+kubectl describe pod <pod-name>
+kubectl logs -f job/run-migrations
+kubectl rollout status deployment symfony
+```
+
+### References
+
+- Symfony Documentation: https://symfony.com/doc/current/index.html  
+- Doctrine Migrations: https://www.doctrine-project.org/projects/doctrine-migrations.html  
+
+---
+
+
