@@ -96,8 +96,8 @@ Build the Docker image:
 
 Use the make script
 ```bash
-docker build -t sazibsust10/symfony-demo:latest .
-docker push sazibsust10/symfony-demo:latest
+docker build -t ghcr.io/sazibsust10/symfony-demo:2.0.3 .
+docker push ghcr.io/sazibsust10/symfony-demo:2.0.3
 ```
 
 ### 1.3 Kubernetes Manifests

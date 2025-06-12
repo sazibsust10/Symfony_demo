@@ -22,6 +22,7 @@ spec:
       containers:
         - name: symfony
           image: ghcr.io/sazibsust10/symfony-demo:2.0.0
+          imagePullPolicy: ifNotPresent
           ports:
             - containerPort: 9000
           env:

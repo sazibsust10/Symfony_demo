@@ -2,7 +2,7 @@
 
 # Variables
 IMAGE_NAME = ghcr.io/sazibsust10/symfony-demo
-IMAGE_TAG ?= 2.0.0
+IMAGE_TAG ?= 2.0.3
 DOCKERFILE ?= Dockerfile
 CONTEXT ?= .
 
