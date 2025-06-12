@@ -27,7 +27,6 @@ The deployment assumes the following tools and environment:
 - Kubernetes cluster (e.g., Minikube, Kind, GKE)  
 - `kubectl` CLI  
 - `kustomize` for manifest management  
-- (Optional) `helm` intended for future enhancements such as versioning and rollback  
 
 ---
 
@@ -76,13 +75,16 @@ To containerize and deploy the Symfony demo application on Kubernetes, ensuring 
 
 - The Symfony demo app was cloned from the public GitHub repository.
 - A Dockerfile was created to containerize the application, with images pushed to GitHub Container Registry.
-- Kubernetes manifests were structured using Kustomize for environment overlays (dev and prod).
+- Kubernetes manifests were structured using Kustomize for environment overlays (dev and prod) for managing multiple deployment environments.
 - The manifests include Deployments, Services, ConfigMaps, Secrets and PersistentVolumeClaims.
 
 - Secrets are currently managed via Kubernetes Secret objects in plaintext for simplicity; production deployments should use secret management solutions such as Vault or cloud provider equivalents.
 - Database is deployed as a MySQL instance within the cluster for demonstration; for production, an external managed database service is recommended.
 - Health checks (`readinessProbe` and `livenessProbe`) can be implemented; a minimal `/health` endpoint should be added in the Symfony app for these to function properly.
 
+#### Future Improvement
+- Migrate to `Helm` to enable better versioned and rollback-capable deployments, along with rich templating support for future scalability
+- Implement automated CI/CD pipelines integrating Helm charts for streamlined, reliable deployments across environments.
 ### Deployment Steps
 
 ```bash
@@ -114,20 +116,23 @@ Integrate database migration capability into the Kubernetes deployment pipeline 
 - Utilized Doctrine Migrations with additive, non-destructive schema changes.
 - Introduced a Kubernetes Job to run migrations (`db-migrate.yaml`) before the application deployment.
 - Migration job designed to be idempotent and safe to re-run if needed.
-- Emphasized zero-downtime by decoupling migration execution from application rollout.
-- Rollback strategies include testing schema version compatibility and database backups.
+
+
 
 ### Deployment Workflow
 
-1. Execute the migration Job using:
+Execute the migration Job using:
 
-    ```bash
-    kubectl apply -f k8s/base/jobs/db-migrate.yaml
-    ```
+```bash
+kubectl apply -f k8s/base/jobs/db-migrate.yaml
+```
 
-2. Upon success, deploy the updated application manifest.
+**Note:** In my Kustomize configuration, all resources and patches are organized to ensure they are applied in the correct sequence. This guarantees that dependencies—such as ConfigMaps, Secrets, and PersistentVolumeClaims—are created before the pods or deployments that rely on them, preventing runtime errors and deployment failures. 
 
-3. Conduct smoke testing to validate functionality.
+#### Future Improvement
+- Introduce connection pooling (e.g., ProxySQL for MySQL) to improve database performance and scalability.
+- Enhance observability by adding monitoring, logging, and alerting tools (Prometheus, Grafana, ELK stack).
+- Adopt StatefulSets for stateful services like MySQL to improve resilience and data persistence.
 
 ---
 
@@ -170,7 +175,6 @@ Identify scalability challenges and implement solutions at both application and 
 |---------|-------------|---------|
 | Read Replicas with Proxy | Offloads read traffic using tools like `ProxySQL` | Reduces pressure on the primary DB. |
 | Clustering (e.g., Patroni, MySQL Group Replication) | Enables horizontal scale and high availability. | Removes single points of failure. |
-| Connection Pooling (pgbouncer) | Manages and reuses DB connections efficiently. | Prevents DB connection exhaustion. |
 | Scalable Storage (PVC expansion) | Use dynamically resizable PersistentVolumes. | Supports growing data workloads. |
 
 - Production recommendation: utilize managed database services with high availability and read replicas to scale read operations.
@@ -219,7 +223,6 @@ This deployment project highlights key DevOps competencies:
 - Autoscaling configuration to manage load variations  
 - Awareness of production-grade best practices around secrets and database management  
 
-The solution is reproducible and designed with maintainability and scalability in mind.
 
 ---
 

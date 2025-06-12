@@ -5,6 +5,9 @@ images:
     # newName: ghcr.io/sazibsust10/symfony-demo
     newTag: 2.0.1
 resources:
+  - secrets/secret.yaml
+  - config/configmap.yaml
+  - storage/symfony-pvc.yaml
   - deployments/mysql-deployment.yaml
   - jobs/db-migrate.yaml
   - deployments/app-deployment.yaml
@@ -12,8 +15,5 @@ resources:
   - services/app-service.yaml
   - services/db-service.yaml
   - services/web-service.yaml
-  - secrets/secret.yaml
-  - config/configmap.yaml
-  - storage/symfony-pvc.yaml
   - autoscaling/hpa.yaml
   
