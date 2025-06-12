@@ -57,7 +57,7 @@ The structure for the added kubernetes deployments files are as below (symfony-d
 │ │ │ └── secret.yaml
 │ │ ├── services/
 │ │ │ ├── db-service.yaml
-│ │ │ ├── service.yaml
+│ │ │ ├── app-service.yaml
 │ │ │ └── web-service.yaml
 │ │ ├── storage/
 │ │ │ └── symfony-pvc.yaml
@@ -65,7 +65,7 @@ The structure for the added kubernetes deployments files are as below (symfony-d
 │ └── overlays/
 │ ├── dev/
 │ │ └── kustomization.yaml
-│ └── pod/
+│ └── prod/
 │ └── kustomization.yaml
 ├── setup-instruction.md
 └── ...
@@ -82,7 +82,7 @@ The structure for the added kubernetes deployments files are as below (symfony-d
 
 Clone the Symfony Demo app from GitHub:
 
-//you can either clone the repo or use the image tag Link here 
+You can either clone the repo or use the image tag Link here 
 [text](https://github.com/users/sazibsust10/packages/container/package/symfony-demo)
 
 ```bash
@@ -99,7 +99,7 @@ Use the make script
 docker build -t ghcr.io/sazibsust10/symfony-demo:2.0.3 .
 docker push ghcr.io/sazibsust10/symfony-demo:2.0.3
 ```
-
+After pushing image to your continer registry, update the kustomization.yaml, app-deployment.yaml and db-migrate.yaml 
 ### 1.3 Kubernetes Manifests
 
 Apply the manifests:

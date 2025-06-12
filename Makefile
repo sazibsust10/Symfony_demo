@@ -13,7 +13,6 @@ CONTEXT ?= .
 all: build push
 
 build:
-	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(CONTEXT)
-
+	docker build  -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE) $(CONTEXT) 
 push:
 	docker push $(IMAGE_NAME):$(IMAGE_TAG)

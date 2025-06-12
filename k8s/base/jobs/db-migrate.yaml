@@ -23,7 +23,7 @@ spec:
               echo "MySQL is ready!"
       containers: # This container runs the migration command
         - name: migrate
-          image: ghcr.io/sazibsust10/symfony-demo:2.0.0  
+          image: ghcr.io/sazibsust10/symfony-demo:2.0.0
           command:
             - /bin/sh
             - -c
